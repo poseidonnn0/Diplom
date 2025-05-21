@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>People Counter Analytics</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 2rem;
+            background-color: #f5f6fa;
+        }
+
+        .dashboard {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .stats-title {
+            font-size: 1.5rem;
+            color: #2d3436;
+        }
+
+        .last-update {
+            color: #636e72;
+            font-size: 0.9rem;
+        }
+
+        .zones-container {
+            display: grid;
+            gap: 1.2rem;
+        }
+
+        .zone-card {
+            padding: 1.2rem;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border-left: 4px solid;
+        }
+
+        .zone-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+        }
+
+        .zone-name {
+            font-weight: 600;
+            color: #2d3436;
+        }
+
+        .zone-count {
+            font-weight: 700;
+            color: #0984e3;
+        }
+
+        .progress-container {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .zone-meta {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.85rem;
+            color: #636e72;
+        }
+
+        .form-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2d3436;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #dcdde1;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        button {
+            background: #0984e3;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        button:hover {
+            background: #0873c4;
+        }
+
+        .progress-bar.low-load {
+            background: #2ecc71;
+        }
+
+        .progress-bar.medium-load {
+            background: #f1c40f;
+        }
+
+        .progress-bar.high-load {
+            background: #e67e22;
+        }
+
+        .progress-bar.critical-load {
+            background: #e74c3c;
+        }
+
+        .days-filter {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            justify-content: space-between;
+        }
+
+        .day-btn {
+            padding: 0.6rem 1rem;
+            background: #0984e3;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1 1 auto;
+            text-align: center;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .day-btn:hover {
+            background: #0873c4;
+        }
+
+        .day-btn.active {
+            background: #065a9c;
+        }
+
+        #combinedChart {
+            width: 100%!important;
+            height: 100%!important;
+        }
+
+        @media (max-width: 1200px) {
+            .day-btn {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 992px) {
+            body {
+                margin: 1rem;
+            }
+
+            .day-btn {
+                padding: 0.4rem 0.6rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .day-btn {
+                font-size: 0.75rem;
+                padding: 0.3rem 0.5rem;
+            }
+        }
+
+        #toggleRounding {
+            background: #27ae60;
+            padding: 0.6rem 1.2rem;
+            margin-left: auto;
+        }
+        #toggleRounding:hover {
+            background: #219a52;
+        }
+    </style>
+</head>
+<body>
+    <h1>🏙️ People Flow Analytics</h1>
+
+    <div class="dashboard">
+        <div class="stats-header">
+            <div>
+                <h2 class="stats-title">Мониторинг в реальном времени</h2>
+                <div class="last-update">
+                    Последнее обновление: {{ last_update.strftime('%H:%M:%S') if last_update else 'N/A' }}
+                </div>
+            </div>
+            <div class="total-count">
+                <div style="font-size: 0.9rem; color: #636e72;">Всего обнаружено людей</div>
+                <div style="font-size: 1.8rem; font-weight: 700;">{{ total_count }}</div>
+            </div>
+        </div>
+
+        <div class="zones-container">
+            {% for zone in zones %}
+            <div class="zone-card" style="border-color: {{ zone.color }}">
+                <div class="zone-header">
+                    <div class="zone-name">{{ zone.name }}</div>
+                    <div class="zone-count">{{ zone.count }} / {{ zone.max_capacity }}</div>
+                </div>
+
+                {% set percentage = (zone.count / zone.max_capacity * 100)|round(1) %}
+                <div class="progress-container">
+                    <div class="progress-bar
+                        {% if percentage >= 90 %}critical-load
+                        {% elif percentage >= 75 %}high-load
+                        {% elif percentage >= 50 %}medium-load
+                        {% else %}low-load
+                        {% endif %}"
+                        style="width: {{ percentage }}%">
+                    </div>
+                </div>
+
+                <div class="zone-meta">
+                    <div>
+                        📊
+                        {% if percentage < 50 %}
+                            Слабая нагрузка
+                        {% elif percentage < 75 %}
+                            Средняя загруженность
+                        {% elif percentage < 90 %}
+                            Высокая нагрузка
+                        {% else %}
+                            Полная загруженность
+                        {% endif %}
+                        ({{ percentage }}%)
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="dashboard">
+        <h3>📊 Сравнение загрузки зон по часам</h3>
+        <div style="margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center">
+            <div class="days-filter">
+                <button class="day-btn active" data-day="0">Понедельник</button>
+                <button class="day-btn" data-day="1">Вторник</button>
+                <button class="day-btn" data-day="2">Среда</button>
+                <button class="day-btn" data-day="3">Четверг</button>
+                <button class="day-btn" data-day="4">Пятница</button>
+                <button class="day-btn" data-day="5">Суббота</button>
+                <button class="day-btn" data-day="6">Воскресенье</button>
+                <button id="toggleRounding" class="day-btn">
+                Округлять значения: ❌
+            </button>
+            </div>
+        </div>
+        <div style="height: 70vh; width: 100%; border: 1px solid #ccc">
+            <canvas id="combinedChart"></canvas>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <h3 style="margin-top: 0; margin-bottom: 1.5rem;">📥 Export Historical Data</h3>
+        <form id="downloadForm">
+            <div class="form-group">
+                <label>Start datetime</label>
+                <input type="datetime-local" name="start" id="start" required>
+            </div>
+
+            <div class="form-group">
+                <label>End datetime</label>
+                <input type="datetime-local" name="end" id="end" required>
+            </div>
+
+            <div class="form-group">
+                <label>File format</label>
+                <select name="format">
+                    <option value="xlsx">Excel (.xlsx)</option>
+                    <option value="csv">CSV (.csv)</option>
+                </select>
+            </div>
+
+            <button type="submit">Download Report</button>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let chartInstance = null;
+        let allZonesData = {};
+        let roundValues = false;
+        const zoneColors = {
+            'Main Entrance': '#2ecc71',
+            'Food Court': '#e67e22',
+            'VIP Lounge': '#9b59b6'
+        };
+
+        // 1. Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                console.log('Загрузка данных...');
+
+                // 2. Запрос данных с сервера
+                const response = await fetch('/hourly_data');
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const data = await response.json();
+                console.log('Получены данные:', data);
+
+                // 3. Преобразование структуры данных
+                allZonesData = {};
+                Object.entries(data.zones).forEach(([zoneName, days]) => {
+                    allZonesData[zoneName] = Array.from({ length: 7 }, (_, dayIndex) => {
+                        return Array.from({ length: 24 }, (_, hour) => {
+                            return days[dayIndex]?.[hour] || 0;
+                        });
+                    });
+                });
+
+                console.log('Преобразованные данные:', allZonesData);
+
+                // 4. Первоначальная отрисовка графика
+                updateChart(0);
+
+                // 5. Обработчики кнопок дней недели
+                document.querySelectorAll('.day-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        // Снимаем активное состояние со всех кнопок
+                        document.querySelectorAll('.day-btn').forEach(b => {
+                            b.classList.remove('active');
+                        });
+
+                        // Добавляем активное состояние текущей кнопке
+                        this.classList.add('active');
+
+                        // Обновляем график
+                        const selectedDay = parseInt(this.dataset.day);
+                        console.log('Выбран день:', selectedDay);
+                        updateChart(selectedDay);
+                    });
+                });
+
+            } catch (error) {
+                console.error('Ошибка:', error);
+                document.getElementById('combinedChart').closest('div').innerHTML =
+                    `<div style="color: red; padding: 20px">${error.message}</div>`;
+            }
+        });
+
+        // 6. Функция обновления графика
+        function updateChart(selectedDay) {
+            console.log('Обновление графика для дня', selectedDay);
+
+            // Уничтожаем предыдущий график
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            const ctx = document.getElementById('combinedChart').getContext('2d');
+
+            // Подготавливаем данные
+            const labels = Array.from({ length: 24 }, (_, hour) => {
+                return `${hour.toString().padStart(2, '0')}:00`;
+            });
+
+            const datasets = Object.entries(allZonesData).map(([zoneName, daysData]) => {
+                const dayData = daysData[selectedDay] || [];
+
+                return {
+                    label: zoneName,
+                    data: dayData.map(value => {
+                        return roundValues ? Math.round(value) : Number(value.toFixed(1));
+                    }),
+                    borderColor: zoneColors[zoneName],
+                    tension: 0.3,
+                    fill: false
+                };
+            });
+
+            // Создаем новый график
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Время суток',
+                                color: '#666',
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: `Среднее количество людей${roundValues ? '' : ' (точные значения)'}`,
+                                color: '#666',
+                                font: { weight: 'bold' }
+                            },
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return roundValues ? value : value.toFixed(1);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.parsed.y;
+                                    return `${context.dataset.label}: ${
+                                        roundValues ? Math.round(value) : value.toFixed(1)
+                                    }`;
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 7. Обработчик кнопки округления
+        document.getElementById('toggleRounding').addEventListener('click', function() {
+            console.log('Переключение округления');
+            roundValues = !roundValues;
+            this.textContent = `Округлять значения: ${roundValues ? '✅' : '❌'}`;
+
+            const activeDay = document.querySelector('.day-btn.active').dataset.day;
+            console.log('Активный день:', activeDay);
+            updateChart(parseInt(activeDay));
+        });
+
+        // 8. Обработчик формы экспорта
+        document.getElementById('downloadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            console.log('Отправка формы экспорта');
+
+            try {
+                const params = new URLSearchParams({
+                    start: document.getElementById('start').value,
+                    end: document.getElementById('end').value,
+                    format: document.querySelector('[name="format"]').value
+                });
+
+                const response = await fetch(`/download?${params}`);
+                if (!response.ok) throw new Error(await response.text());
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `people_data_${new Date().toISOString()}.${params.get('format')}`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+
+            } catch (error) {
+                alert(`Ошибка: ${error.message}`);
+            }
+        });
+    </script>
+</body>
+</html>

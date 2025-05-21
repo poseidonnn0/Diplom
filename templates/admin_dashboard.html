@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель администратора</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+    <script defer src="{{ url_for('static', filename='admin.js') }}"></script>
+</head>
+<body>
+    <header class="admin-header">
+        <h1 class="admin-title">⚙️ Панель управления</h1>
+        <nav class="admin-nav">
+            <a href="/admin/logout" class="logout-btn">Выйти</a>
+        </nav>
+    </header>
+	
+    <main class="admin-main">
+        <!-- Управление камерой -->
+        <section class="camera-controls">
+            <h2 class="section-title">📹 Настройка камеры</h2>
+            <div class="control-group">
+                <div class="input-row">
+                    <label for="camera-type">Тип подключения:</label>
+                    <select id="camera-type" class="form-select">
+                        <option value="ip">IP-камера</option>
+                        <option value="usb">USB-камера</option>
+                    </select>
+                </div>
+                <div class="input-row">
+                    <label for="camera-url">Источник:</label>
+                    <input 
+                        type="text" 
+                        id="camera-url" 
+                        class="form-input"
+                        placeholder="rtsp://login:pass@ip:port/stream"
+                        required
+                    >
+                </div>
+                <button id="save-camera-btn" class="btn btn-primary">
+                    🔄 Обновить подключение
+                </button>
+            </div>
+        </section>
+
+        <!-- Превью видео -->
+<section class="video-preview">
+    <h2 class="section-title">🎥 Прямой эфир</h2>
+    <div class="video-wrapper">
+        <div id="videoContainer">
+            <img src="{{ url_for('video_feed') }}" id="liveFeed" alt="Видеопоток" class="video-stream">
+            <div id="videoOverlay" class="video-overlay">Инициализация камеры...</div>
+        </div>
+    </div>
+</section>
+
+        <!-- Редактор зон -->
+        <section class="zone-editor">
+            <h2 class="section-title">🗺️ Управление зонами</h2>
+            <div class="zones-container">
+                {% for zone in zones %}
+                <article class="zone-card">
+                    <div class="zone-header">
+                        <input 
+                            type="text" 
+                            value="{{ zone.name }}" 
+                            class="zone-name"
+                            placeholder="Название зоны"
+                            required
+                        >
+                        <input 
+                            type="color" 
+                            value="{{ zone.color }}" 
+                            class="zone-color"
+                            title="Цвет зоны"
+                        >
+                    </div>
+                    <div class="zone-body">
+                        <div class="input-row">
+                            <label>Лимит людей:</label>
+                            <input 
+                                type="number" 
+                                value="{{ zone.max_capacity }}" 
+                                class="zone-limit"
+                                min="1"
+                                required
+                            >
+                        </div>
+                        <fieldset class="coordinates-editor">
+                            <legend>Границы зоны (px):</legend>
+                            <div class="coords-grid">
+                                <input type="number" value="{{ zone.coords[0] }}" placeholder="X1" required>
+                                <input type="number" value="{{ zone.coords[1] }}" placeholder="Y1" required>
+                                <input type="number" value="{{ zone.coords[2] }}" placeholder="X2" required>
+                                <input type="number" value="{{ zone.coords[3] }}" placeholder="Y2" required>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="zone-footer">
+                        <button 
+                            class="btn save-zone-btn" 
+                            data-zone-index="{{ loop.index0 }}"
+                        >
+                            💾 Сохранить изменения
+                        </button>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+</body>
+</html>
