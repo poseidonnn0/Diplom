@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Загруженность помещений{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <a class="brand" href="/">Загруженность помещений</a>
+      <nav class="nav" aria-label="Разделы">
+        <a href="/" {% if active == 'dashboard' %}aria-current="page"{% endif %}>Сейчас и прогноз</a>
+        <a href="/history" {% if active == 'history' %}aria-current="page"{% endif %}>История</a>
+        <a href="/models" {% if active == 'models' %}aria-current="page"{% endif %}>Модели</a>
+        <a href="/admin" {% if active in ('admin', 'login') %}aria-current="page"{% endif %}>Управление</a>
+        {% if admin %}<form method="post" action="/admin/logout"><button type="submit">Выйти</button></form>{% endif %}
+      </nav>
+    </div>
+  </header>
+  <main>
+    <div class="wrap">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+  <script src="/static/js/app.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="head">
+  <div>
+    <h1>Сейчас и прогноз</h1>
+    <p class="sub" id="summary">Загружаю данные</p>
+  </div>
+  <span class="pill" id="source"><i></i><span>Источник</span></span>
+</div>
+
+<div class="zones" id="zones" role="group" aria-label="Зоны"></div>
+
+<section class="panel" aria-labelledby="chart-title">
+  <div class="panel-head">
+    <div>
+      <h2 id="chart-title">Факт и прогноз</h2>
+      <div class="legend">
+        <span><i></i>наблюдения</span>
+        <span class="f"><i></i>прогноз</span>
+        <span class="b"><i></i>диапазон прогноза</span>
+        <span class="c"><i></i>вместимость</span>
+      </div>
+    </div>
+    <span class="note" id="model" style="color:var(--sage)"></span>
+  </div>
+  <div class="chart"><canvas id="timeline" aria-label="График наблюдений и прогноза"></canvas></div>
+  <p class="empty" id="no-forecast" hidden>Прогноза пока нет. Накопите историю хотя бы за 10 суток и обучите модели на странице «Модели».</p>
+</section>
+
+<section class="block" aria-labelledby="week-title">
+  <h2 id="week-title">Типовая неделя</h2>
+  <p class="note" id="week-note">Средняя загрузка по дням недели и часам за последние 8 недель.</p>
+  <div class="week" id="week" aria-hidden="true"></div>
+  <div class="scale"><span>пусто</span><i></i><span>заполнено</span></div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="/static/vendor/chart.umd.js"></script>
+<script src="/static/js/dashboard.js"></script>
+{% endblock %}

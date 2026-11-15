@@ -1,0 +1,10 @@
+[project]
+name = "occupancy"
+version = "0.2.0"
+description = "Интеллектуальная система прогнозирования загруженности помещений"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]

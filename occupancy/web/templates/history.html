@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}История — Загруженность помещений{% endblock %}
+{% block content %}
+<div class="head">
+  <div>
+    <h1>История</h1>
+    <p class="sub">Сколько людей было в зонах за выбранный период. Данные можно выгрузить в таблицу.</p>
+  </div>
+</div>
+
+<form class="row" id="period">
+  <label class="f">С <input type="date" name="start" required></label>
+  <label class="f">По <input type="date" name="end" required></label>
+  <button class="btn" type="submit">Показать</button>
+  <button class="btn ghost" type="button" data-days="1">Сегодня</button>
+  <button class="btn ghost" type="button" data-days="7">7 дней</button>
+  <button class="btn ghost" type="button" data-days="30">30 дней</button>
+</form>
+<p class="msg" id="msg" role="status"></p>
+
+<section class="panel" aria-labelledby="history-title">
+  <h2 id="history-title">Число людей по зонам</h2>
+  <div class="chart"><canvas id="history" aria-label="График истории по зонам"></canvas></div>
+</section>
+
+<div class="grid2 stack">
+  <section class="block">
+    <h2>Итоги периода</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Зона</th><th class="num">В среднем</th><th class="num">Максимум</th><th>Когда</th><th class="num">Время с высокой загрузкой</th></tr></thead>
+        <tbody id="stats"></tbody>
+      </table>
+    </div>
+  </section>
+  <section class="block">
+    <h2>Выгрузка</h2>
+    <p class="note">Файл за выбранный период, не длиннее 92 дней.</p>
+    <div class="row" style="margin-top:14px">
+      <label class="f">Шаг
+        <select id="step">
+          <option value="1">1 минута</option>
+          <option value="15" selected>15 минут</option>
+          <option value="60">1 час</option>
+        </select>
+      </label>
+      <button class="btn" type="button" data-format="xlsx">Скачать XLSX</button>
+      <button class="btn ghost" type="button" data-format="csv">Скачать CSV</button>
+    </div>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/vendor/chart.umd.js"></script>
+<script src="/static/js/history.js"></script>
+{% endblock %}

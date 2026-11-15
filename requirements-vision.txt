@@ -1,0 +1,7 @@
+# Видеоаналитика (детекция людей) и нейросетевая модель прогноза.
+# Для обучения на видеокарте сначала поставьте torch с поддержкой CUDA:
+#   pip install torch --index-url https://download.pytorch.org/whl/cu124
+-r requirements.txt
+torch>=2.2
+ultralytics>=8.3
+opencv-python>=4.9

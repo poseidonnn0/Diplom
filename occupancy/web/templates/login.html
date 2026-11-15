@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Вход — Загруженность помещений{% endblock %}
+{% block content %}
+<div class="login">
+  <h1>Управление</h1>
+  <p class="sub" style="color:var(--moss);margin-top:8px">Настройка источника, зон и переобучение моделей доступны администратору.</p>
+  <form method="post" action="/admin/login">
+    <label class="f">Пароль администратора
+      <input type="password" name="password" autocomplete="current-password" required autofocus>
+    </label>
+    <button class="btn" type="submit">Войти</button>
+    {% if error %}<p class="msg err" role="alert">{{ error }}</p>{% endif %}
+  </form>
+  <p class="note" style="margin-top:16px">Пароль задаётся переменной OCC_ADMIN_PASSWORD. Если она не задана, пароль печатается в консоли при запуске.</p>
+</div>
+{% endblock %}
