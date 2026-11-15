@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Модели — Загруженность помещений{% endblock %}
+{% block content %}
+<div class="head">
+  <div>
+    <h1>Модели прогноза</h1>
+    <p class="sub" id="lead">Модели сравниваются на последних днях истории, которые они не видели при обучении. Прогноз строит та, у которой меньше средняя ошибка.</p>
+  </div>
+  <span class="pill" id="data"><i></i><span>История</span></span>
+</div>
+
+<section class="block" style="margin-top:0">
+  <h2>Сравнение на отложенных данных</h2>
+  <p class="note" id="trained"></p>
+  <div class="scroll" style="margin-top:10px">
+    <table>
+      <thead id="thead"></thead>
+      <tbody id="runs"></tbody>
+    </table>
+  </div>
+  <p class="empty" id="no-runs" hidden style="color:var(--moss)">Модели ещё не обучались.</p>
+</section>
+
+<section class="panel stack" aria-labelledby="horizon-title">
+  <h2 id="horizon-title">Ошибка на разных горизонтах</h2>
+  <p class="note" style="color:var(--sage)">Средняя абсолютная ошибка в людях. Чем дальше прогноз, тем она обычно больше.</p>
+  <div class="chart" style="height:300px"><canvas id="horizons" aria-label="Ошибка моделей по горизонтам"></canvas></div>
+</section>
+
+<section class="block">
+  <h2>Как читать таблицу</h2>
+  <ul class="note" style="display:grid;gap:6px;margin-top:8px;max-width:80ch">
+    <li><b>MAE</b> — на сколько человек в среднем ошибается прогноз.</li>
+    <li><b>RMSE</b> — то же, но крупные промахи весят больше.</li>
+    <li><b>WAPE</b> — суммарная ошибка в долях от суммарной посещаемости.</li>
+    <li><b>Покрытие</b> — как часто факт попадает в диапазон прогноза. Цель указана в заголовке столбца.</li>
+    <li><b>Выигрыш</b> — на сколько ошибка меньше, чем у наивной модели «как неделю назад».</li>
+  </ul>
+</section>
+
+{% if admin %}
+<section class="block">
+  <h2>Переобучение</h2>
+  <p class="note">Сравнение и обучение идут в фоне. Нейросеть на процессоре учится несколько минут, на видеокарте быстрее.</p>
+  <div class="row" style="margin-top:14px">
+    <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="neural" checked style="width:20px;height:20px;accent-color:var(--pine)"> Включая нейросеть</label>
+    <button class="btn" type="button" id="train">Переобучить модели</button>
+  </div>
+  <p class="msg" id="train-msg" role="status"></p>
+</section>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script src="/static/vendor/chart.umd.js"></script>
+<script>window.IS_ADMIN = {{ 'true' if admin else 'false' }};</script>
+<script src="/static/js/models.js"></script>
+{% endblock %}

@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+# IDE
+.idea/
+.vscode/
+.ipynb_checkpoints/
+
+# Локальные данные и артефакты
+.env
+data/*.db
+data/*.db-journal
+data/models/
+data/reports/
+data/datasets/
+*.pt
+*.onnx
+runs/

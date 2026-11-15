@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Управление — Загруженность помещений{% endblock %}
+{% block content %}
+<div class="head">
+  <div>
+    <h1>Управление</h1>
+    <p class="sub">Откуда брать подсчёты и как кадр делится на зоны.</p>
+  </div>
+  <span class="pill" id="state"><i></i><span>Сборщик</span></span>
+</div>
+
+<section class="block" style="margin-top:0">
+  <h2>Источник подсчётов</h2>
+  <form class="row" id="source" style="margin-top:12px">
+    <label class="f">Режим
+      <select name="mode">
+        <option value="off">Выключен</option>
+        <option value="demo">Имитация без камеры</option>
+        <option value="video">Видео и детектор</option>
+      </select>
+    </label>
+    <label class="f" style="flex:1;min-width:260px">Файл, номер USB-камеры или адрес потока
+      <input type="text" name="url" placeholder="data/samples/test_video.mp4, 0 или rtsp://...">
+    </label>
+    <button class="btn" type="submit">Применить</button>
+  </form>
+  <p class="msg" id="source-msg" role="status"></p>
+</section>
+
+<div class="grid2 stack">
+  <section class="block">
+    <h2>Кадр и зоны</h2>
+    <p class="note">Выберите зону в списке и обведите её область мышью на кадре.</p>
+    <div class="stage" id="stage" style="margin-top:12px">
+      <img id="frame" alt="Кадр с камеры с отмеченными людьми">
+      <div class="ph" id="placeholder">Кадров нет. Зоны можно разметить и без видео.</div>
+    </div>
+  </section>
+  <section class="block">
+    <h2>Зоны</h2>
+    <div id="zones"></div>
+    <form class="row" id="new-zone" style="margin-top:16px">
+      <label class="f" style="flex:1;min-width:160px">Новая зона <input type="text" name="name" placeholder="Название" required maxlength="80"></label>
+      <label class="f">Мест <input type="number" name="capacity" value="10" min="1" style="width:100px" required></label>
+      <button class="btn ghost" type="submit">Добавить</button>
+    </form>
+    <p class="msg" id="zones-msg" role="status"></p>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/admin.js"></script>
+{% endblock %}
